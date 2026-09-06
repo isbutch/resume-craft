@@ -495,7 +495,7 @@ export const ResumeEditor: React.FC<ResumeEditorProps> = ({ data, onChange, onRe
         
         {/* VERTICAL LEFT NAV RAIL (Extremely high design fidelity) */}
         <nav className="w-16 bg-slate-50/80 border-r border-slate-200 flex flex-col items-center py-4 shrink-0 justify-between">
-          <div className="flex flex-col items-center gap-3 w-full">
+          <div className="flex flex-col items-center gap-3 w-full shrink-0">
             {[
               { id: 'styling', label: '排版', icon: 'Sliders' },
               { id: 'personal', label: '信息', icon: 'User' },
@@ -525,7 +525,7 @@ export const ResumeEditor: React.FC<ResumeEditorProps> = ({ data, onChange, onRe
             ))}
           </div>
 
-          <div className="text-[8px] font-mono text-slate-400 select-none text-center">
+          <div className="text-[8px] font-mono text-slate-400 select-none text-center shrink-0 pt-2">
             v1.2
           </div>
         </nav>

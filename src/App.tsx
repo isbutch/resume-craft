@@ -84,6 +84,17 @@ export default function App() {
     window.addEventListener('hashchange', navigate);
     return () => window.removeEventListener('hashchange', navigate);
   }, []);
+  useEffect(() => {
+    if (route === 'editor') {
+      window.scrollTo(0, 0);
+      document.documentElement.style.overflow = 'hidden';
+      document.body.style.overflow = 'hidden';
+      return () => {
+        document.documentElement.style.overflow = '';
+        document.body.style.overflow = '';
+      };
+    }
+  }, [route]);
   useEffect(() => { document.title = route === 'editor' ? '编辑简历 · CraftCV' : 'CraftCV · 让你的经历被认真看见'; }, [route]);
   useEffect(() => {
     if (!dirty) return;
