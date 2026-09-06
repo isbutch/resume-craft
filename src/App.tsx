@@ -4,6 +4,7 @@ import { ResumeEditor } from './components/ResumeEditor';
 import { ResumePreview } from './components/ResumePreview';
 import { HomePage } from './components/HomePage';
 import { LucideIcon } from './components/LucideIcon';
+import { WechatRewardMenuItem, WechatRewardModal } from './components/WechatReward';
 import { preparePrintImage, withTimeout } from './utils/printPreparation';
 import { blankResume, freshResume, parseResume, STORAGE_KEY, MAX_BACKUP_BYTES } from './utils/resumeData';
 
@@ -49,6 +50,7 @@ export default function App() {
   const [saveStatus, setSaveStatus] = useState<'saved' | 'saving' | 'error'>(initial.storageUnavailable ? 'error' : 'saved');
   const [isExporting, setIsExporting] = useState(false);
   const [isImporting, setIsImporting] = useState(false);
+  const [showRewardModal, setShowRewardModal] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const menuRef = useRef<HTMLDetailsElement>(null);
   const current = useRef(data);
@@ -220,7 +222,21 @@ export default function App() {
           <a href="#/" className="craft-brand" aria-label="返回首页"><span className="brand-symbol"><LucideIcon name="FileText" size={20} /></span><span className="workspace-brand-text">CraftCV</span><LucideIcon name="ChevronLeft" size={14} /><span className="back-label">首页</span></a>
           <div className="workspace-document"><input aria-label="简历名称" maxLength={80} value={data.title} placeholder="我的简历" onChange={e => setData({ ...data, title: e.target.value })} /><span role="status" className={'save-status status-' + saveStatus}><i />{statusText}</span></div>
           <div className="workspace-actions"><button className="icon-button" onClick={() => undo()} disabled={!history.current.past.length} title="撤销" aria-label="撤销"><LucideIcon name="Undo2" size={17} /></button><button className="icon-button" onClick={() => undo(true)} disabled={!history.current.future.length} title="重做" aria-label="重做"><LucideIcon name="Redo2" size={17} /></button>
-            <details ref={menuRef} className="workspace-menu"><summary aria-label="更多操作"><LucideIcon name="Ellipsis" size={20} /><span>更多</span></summary><div className="workspace-menu-panel" onClick={() => { if (menuRef.current) menuRef.current.open = false; }}><button onClick={handleExportJSON}><LucideIcon name="Download" size={16} />导出 JSON 备份</button><button disabled={isImporting} onClick={() => fileInputRef.current?.click()}><LucideIcon name="Upload" size={16} />{isImporting ? '读取中…' : '导入 JSON 备份'}</button><hr /><button onClick={handleResetToPreset}><LucideIcon name="RotateCcw" size={16} />恢复示例内容</button><button className="danger" onClick={handleClearAll}><LucideIcon name="FilePlus2" size={16} />新建空白简历</button></div></details>
+            <details ref={menuRef} className="workspace-menu">
+              <summary aria-label="更多操作"><LucideIcon name="Ellipsis" size={20} /><span>更多</span></summary>
+              <div className="workspace-menu-panel" onClick={() => { if (menuRef.current) menuRef.current.open = false; }}>
+                <button onClick={handleExportJSON}><LucideIcon name="Download" size={16} />导出 JSON 备份</button>
+                <button disabled={isImporting} onClick={() => fileInputRef.current?.click()}><LucideIcon name="Upload" size={16} />{isImporting ? '读取中…' : '导入 JSON 备份'}</button>
+                <hr />
+                <WechatRewardMenuItem onOpenModal={() => {
+                  setShowRewardModal(true);
+                  if (menuRef.current) menuRef.current.open = false;
+                }} />
+                <hr />
+                <button onClick={handleResetToPreset}><LucideIcon name="RotateCcw" size={16} />恢复示例内容</button>
+                <button className="danger" onClick={handleClearAll}><LucideIcon name="FilePlus2" size={16} />新建空白简历</button>
+              </div>
+            </details>
             <button className="craft-button primary small" onClick={handleExportPDF} disabled={isExporting}><LucideIcon name={isExporting ? 'Loader2' : 'Download'} size={16} /><span>{isExporting ? '准备中…' : '导出 PDF'}</span></button>
           </div>
         </header>
@@ -230,6 +246,7 @@ export default function App() {
         <footer className="workspace-footer"><span><LucideIcon name="HardDrive" size={12} />数据保存在当前浏览器</span><span>PDF 导出：在打印窗口中选择「另存为 PDF」</span></footer>
       </div>}
     <input ref={fileInputRef} type="file" accept=".json,application/json" onChange={handleImportJSON} className="hidden" aria-label="导入简历备份文件" />
+    <WechatRewardModal isOpen={showRewardModal} onClose={() => setShowRewardModal(false)} />
     {notice && <div className="app-notice" role="status"><LucideIcon name="Info" size={18} /><span>{notice}</span><button onClick={() => setNotice('')} aria-label="关闭提示"><LucideIcon name="X" size={17} /></button></div>}
   </>;
 }
