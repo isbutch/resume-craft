@@ -5,7 +5,7 @@ import { ResumePreview } from './components/ResumePreview';
 import { HomePage } from './components/HomePage';
 import { LucideIcon } from './components/LucideIcon';
 import { preparePrintImage, withTimeout } from './utils/printPreparation';
-import { blankResume, freshResume, isRetiredExample, parseResume, STORAGE_KEY, MAX_BACKUP_BYTES } from './utils/resumeData';
+import { blankResume, freshResume, parseResume, STORAGE_KEY, MAX_BACKUP_BYTES } from './utils/resumeData';
 
 type DraftLoadResult = {
   data: ResumeData;
@@ -30,16 +30,12 @@ function loadDraft(): DraftLoadResult {
     return { data: freshResume(), exists: false, notice: '本地记录与当前版本不兼容，已显示匿名示例；请使用原备份重新导入。', storageUnavailable: false };
   }
 
-  if (!isRetiredExample(parsed)) return { data: parsed, exists: true, notice: '', storageUnavailable: false };
-
-  // The first shipped demo used a non-anonymous document ID.
-  const replacement = freshResume();
-  try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(replacement));
-  } catch {
-    return { data: replacement, exists: false, notice: '已加载匿名示例，但浏览器无法保存本地记录。', storageUnavailable: true };
+  if (parsed.id === 'resume-1') {
+    parsed.id = crypto.randomUUID();
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(parsed)); } catch {}
   }
-  return { data: replacement, exists: false, notice: '已将旧版示例替换为匿名示例。', storageUnavailable: false };
+
+  return { data: parsed, exists: true, notice: '', storageUnavailable: false };
 }
 
 export default function App() {
@@ -77,7 +73,12 @@ export default function App() {
     updateData(previous); setDirty(true); setSaveStatus('saving'); renderHistory(n => n + 1);
   };
   const replaceData = (next: ResumeData) => { history.current.last = 0; setData(next); history.current.last = 0; };
-  const enter = () => { location.hash = '/editor'; };
+  const enter = () => { location.hash = '#/editor'; };
+  useEffect(() => {
+    if (!notice) return;
+    const timer = window.setTimeout(() => setNotice(''), 4000);
+    return () => window.clearTimeout(timer);
+  }, [notice]);
   useEffect(() => {
     const navigate = () => { setRoute(location.hash === '#/editor' ? 'editor' : 'home'); if (location.hash === '#/') requestAnimationFrame(() => window.scrollTo(0, 0)); };
     window.addEventListener('hashchange', navigate);
@@ -131,10 +132,16 @@ export default function App() {
       const parsed = parseResume(JSON.parse(await file.text()));
       if (revision.current !== startRevision) { setNotice('读取期间简历发生了修改，请重新选择备份以免覆盖新内容。'); return; }
       if ((hasDraft || dirty) && !window.confirm('导入备份将替换当前简历，确认继续？操作后可撤销。')) return;
-      // Save before rendering the imported data. The former debounced-only path
-      // lost an import when users refreshed within 400 ms and hid quota errors.
+      if (parsed.id === 'resume-1' || parsed.id === 'demo-resume-v2') {
+        parsed.id = crypto.randomUUID();
+      }
       localStorage.setItem(STORAGE_KEY, JSON.stringify(parsed));
-      replaceData(parsed); setHasDraft(true); setSaveStatus('saved'); enter(); setNotice('备份导入成功，已保存到此浏览器。');
+      replaceData(parsed);
+      setDirty(false);
+      setHasDraft(true);
+      setSaveStatus('saved');
+      enter();
+      setNotice('备份导入成功，已保存到此浏览器。');
     } catch (error) {
       const isStorageError = error instanceof DOMException && ['QuotaExceededError', 'SecurityError'].includes(error.name);
       setNotice(isStorageError
