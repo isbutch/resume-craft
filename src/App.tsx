@@ -7,21 +7,39 @@ import { LucideIcon } from './components/LucideIcon';
 import { preparePrintImage, withTimeout } from './utils/printPreparation';
 import { blankResume, freshResume, isRetiredExample, parseResume, STORAGE_KEY, MAX_BACKUP_BYTES } from './utils/resumeData';
 
-function loadDraft() {
-  try {
-    const saved = localStorage.getItem(STORAGE_KEY);
-    if (!saved) return { data: freshResume(), exists: false, error: '' };
-    const parsed = parseResume(JSON.parse(saved));
-    if (!isRetiredExample(parsed)) return { data: parsed, exists: true, error: '' };
+type DraftLoadResult = {
+  data: ResumeData;
+  exists: boolean;
+  notice: string;
+  storageUnavailable: boolean;
+};
 
-    // The shipped demo accidentally contained identifiable names and an image.
-    // Replace just that known demo cache before it can render again.
-    const replacement = freshResume();
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(replacement));
-    return { data: replacement, exists: false, error: '已清除旧版本示例中的个人信息，现已换为匿名示例。' };
+function loadDraft(): DraftLoadResult {
+  let saved: string | null;
+  try {
+    saved = localStorage.getItem(STORAGE_KEY);
   } catch {
-    return { data: freshResume(), exists: false, error: '本地记录无法读取。已显示示例，原记录暂未覆盖；可尝试导入备份。' };
+    return { data: freshResume(), exists: false, notice: '浏览器禁止访问本地存储，当前修改无法在刷新后保留。', storageUnavailable: true };
   }
+  if (!saved) return { data: freshResume(), exists: false, notice: '', storageUnavailable: false };
+
+  let parsed: ResumeData;
+  try {
+    parsed = parseResume(JSON.parse(saved));
+  } catch {
+    return { data: freshResume(), exists: false, notice: '本地记录与当前版本不兼容，已显示匿名示例；请使用原备份重新导入。', storageUnavailable: false };
+  }
+
+  if (!isRetiredExample(parsed)) return { data: parsed, exists: true, notice: '', storageUnavailable: false };
+
+  // The first shipped demo used a non-anonymous document ID.
+  const replacement = freshResume();
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(replacement));
+  } catch {
+    return { data: replacement, exists: false, notice: '已加载匿名示例，但浏览器无法保存本地记录。', storageUnavailable: true };
+  }
+  return { data: replacement, exists: false, notice: '已将旧版示例替换为匿名示例。', storageUnavailable: false };
 }
 
 export default function App() {
@@ -29,10 +47,10 @@ export default function App() {
   const [data, updateData] = useState<ResumeData>(initial.data);
   const [hasDraft, setHasDraft] = useState(initial.exists);
   const [dirty, setDirty] = useState(false);
-  const [notice, setNotice] = useState(initial.error);
+  const [notice, setNotice] = useState(initial.notice);
   const [route, setRoute] = useState(() => location.hash === '#/editor' ? 'editor' : 'home');
   const [activePaneMobile, setActivePaneMobile] = useState<'edit' | 'preview'>('edit');
-  const [saveStatus, setSaveStatus] = useState<'saved' | 'saving' | 'error'>(initial.error ? 'error' : 'saved');
+  const [saveStatus, setSaveStatus] = useState<'saved' | 'saving' | 'error'>(initial.storageUnavailable ? 'error' : 'saved');
   const [isExporting, setIsExporting] = useState(false);
   const [isImporting, setIsImporting] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -70,7 +88,7 @@ export default function App() {
     if (!dirty) return;
     const persist = () => {
       try { localStorage.setItem(STORAGE_KEY, JSON.stringify(current.current)); setSaveStatus('saved'); setHasDraft(true); }
-      catch { setSaveStatus('error'); }
+      catch { setSaveStatus('error'); setNotice('浏览器本地空间不足或存储被禁用，当前修改未能自动保存。'); }
     };
     const timer = window.setTimeout(persist, 400);
     const flush = () => { if (document.visibilityState === 'hidden') persist(); };
@@ -113,8 +131,16 @@ export default function App() {
       const parsed = parseResume(JSON.parse(await file.text()));
       if (revision.current !== startRevision) { setNotice('读取期间简历发生了修改，请重新选择备份以免覆盖新内容。'); return; }
       if ((hasDraft || dirty) && !window.confirm('导入备份将替换当前简历，确认继续？操作后可撤销。')) return;
-      replaceData(parsed); enter(); setNotice('备份导入成功。');
-    } catch { setNotice('导入失败：备份格式或字段不正确，当前简历未修改。'); }
+      // Save before rendering the imported data. The former debounced-only path
+      // lost an import when users refreshed within 400 ms and hid quota errors.
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(parsed));
+      replaceData(parsed); setHasDraft(true); setSaveStatus('saved'); enter(); setNotice('备份导入成功，已保存到此浏览器。');
+    } catch (error) {
+      const isStorageError = error instanceof DOMException && ['QuotaExceededError', 'SecurityError'].includes(error.name);
+      setNotice(isStorageError
+        ? '导入失败：浏览器本地空间不足或存储被禁用，当前简历未修改。请压缩头像后重试，或保留 JSON 备份。'
+        : '导入失败：备份格式或字段与当前版本不兼容，当前简历未修改。');
+    }
     finally { setIsImporting(false); }
   };
   // Keep a prepared snapshot until afterprint; no timer may clear an open dialog.
