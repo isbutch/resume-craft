@@ -1,21 +1,38 @@
-# Resume Craft
+# CraftCV
 
-[English](README.md) | [简体中文](README.zh-CN.md)
+[简体中文](README.zh-CN.md) | English
 
-In-browser resume editor with live preview, multiple templates, and PDF export. Data stays in `localStorage`.
+CraftCV is a browser-based resume editor for writing, previewing, and exporting a polished resume without an account.
 
-## Features
+![CraftCV home page](docs/assets/homepage.png)
 
-- Edit personal info, education, skills, projects, and work experience
-- Templates: Classic / Minimal
-- Avatar upload and tech-stack tags
-- Print / PDF export
+## What it does
 
-## Workflow
+- Start from the home page or open `#/editor` directly.
+- Edit profile, education, skills, work experience, projects, and achievements with a live A4 preview.
+- Choose between Classic and Minimal layouts while preserving your content.
+- Upload and crop an avatar, adjust typography and colors, and export through the browser print dialog.
+- Undo or redo recent edits, then import or export a JSON backup.
 
-The home page (`#/`) provides editor and template entry points. Open `#/editor` to edit directly. Switching templates preserves content. The editor supports undo/redo for this session (up to 30 checkpoints), a document title, and a More menu for JSON backup, import, reset, and blank creation.
+## Data and privacy
 
-Changes are stored in this browser with explicit failure feedback. Export a JSON backup before clearing browser storage or moving devices. Imports are validated and limited to 5 MB; retired layouts migrate to Classic. PDF export opens the browser print dialog: choose Save as PDF. Pagination in the preview is an estimate; check the print preview before saving.
+Resume data stays in the current browser's `localStorage`; CraftCV does not provide an account or server-side storage. Export a JSON backup before clearing browser data or moving to another device.
+
+The bundled resume is an anonymized example for layout reference. Older built-in demo caches are migrated to the current anonymous example on load.
+
+## Run locally
+
+```bash
+npm install
+npm run dev
+```
+
+Open the URL printed by Vite. For a production build:
+
+```bash
+npm run build
+npm run preview
+```
 
 ## Validation
 
@@ -28,18 +45,6 @@ npm run build
 ## Stack
 
 React 19 · TypeScript · Vite · Tailwind CSS v4 · Motion
-
-## Usage
-
-```bash
-npm install
-npm run dev
-```
-
-```bash
-npm run build
-npm run preview
-```
 
 ## License
 

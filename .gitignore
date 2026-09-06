@@ -31,6 +31,9 @@ dist/
 dist-ssr/
 build/
 
+# Vite dependency-optimization cache
+.vite/
+
 # Operating System Files
 .DS_Store
 Thumbs.db
