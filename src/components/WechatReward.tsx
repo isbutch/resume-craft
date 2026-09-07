@@ -42,7 +42,7 @@ export function WechatRewardMenuItem({ onOpenModal }: WechatRewardProps) {
 
           <div className="reward-qr-frame">
             <img 
-              src="/wechat-reward.png" 
+              src="/wechat-reward.jpg" 
               alt="微信赞赏码" 
               className="reward-qr-img" 
               loading="lazy" 
@@ -82,7 +82,7 @@ export function WechatRewardModal({ isOpen, onClose }: { isOpen: boolean; onClos
 
         <div className="reward-modal-qr-frame">
           <img 
-            src="/wechat-reward.png" 
+            src="/wechat-reward.jpg" 
             alt="微信赞赏码" 
             className="reward-modal-qr-img" 
             draggable={false} 
