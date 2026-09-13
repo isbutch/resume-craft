@@ -228,6 +228,7 @@ export default function App() {
                 <button onClick={handleExportJSON}><LucideIcon name="Download" size={16} />导出 JSON 备份</button>
                 <button disabled={isImporting} onClick={() => fileInputRef.current?.click()}><LucideIcon name="Upload" size={16} />{isImporting ? '读取中…' : '导入 JSON 备份'}</button>
                 <hr />
+                <a href="https://github.com/isbutch/resume-craft" target="_blank" rel="noreferrer"><LucideIcon name="Github" size={16} />GitHub 开源项目</a>
                 <WechatRewardMenuItem onOpenModal={() => {
                   setShowRewardModal(true);
                   if (menuRef.current) menuRef.current.open = false;
