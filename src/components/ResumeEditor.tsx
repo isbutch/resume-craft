@@ -355,6 +355,7 @@ export const ResumeEditor: React.FC<ResumeEditorProps> = ({ data, onChange, onRe
       role: '研发负责人',
       timePeriod: '2023年03月 - 至今',
       techChain: ['React', 'TypeScript'],
+      descriptionLabel: '项目描述',
       description: '输入项目的核心功能、业务背景和主要应用场景（为用户解决了什么痛点）。',
       contributions: '• 输入您在项目中的具体工作职责与代码质量提升详情\n• 运用相关技术解决的高并发/高复杂业务痛点详情'
     };
@@ -433,6 +434,7 @@ export const ResumeEditor: React.FC<ResumeEditorProps> = ({ data, onChange, onRe
       role: 'Java开发实习生',
       timePeriod: '2023年03月 - 2023年06月',
       techChain: ['Spring Boot', 'MySQL'],
+      descriptionLabel: '经历概述',
       description: '参与业务系统的功能开发与日常迭代，协助完成基础模块优化。',
       contributions: '• 负责日常代码模块研发与调试验证\n• 与团队共同协作迭代业务核心组件'
     };
@@ -516,6 +518,7 @@ export const ResumeEditor: React.FC<ResumeEditorProps> = ({ data, onChange, onRe
       role: '获得一等奖/核心研发',
       timePeriod: '2021年11月 - 2022年05月',
       techChain: ['Python', '算法'],
+      descriptionLabel: '项目情况',
       description: '简单介绍科研目的、学术价值、所获荣誉奖项。',
       contributions: '• 输入您具体攻克的难题、发表的文献、或是获得的荣誉等'
     };
@@ -1439,6 +1442,18 @@ export const ResumeEditor: React.FC<ResumeEditorProps> = ({ data, onChange, onRe
                             />
 
                             <div className="space-y-1.5">
+                              <div className="flex items-center gap-2 flex-wrap">
+                                <span className="text-[10px] font-bold text-slate-500">概述显示名称：</span>
+                                <input
+                                  type="text"
+                                  value={intern.descriptionLabel}
+                                  onChange={(e) => handleInternshipChange(intern.id, 'descriptionLabel', e.target.value)}
+                                  className="editor-input max-w-40"
+                                  placeholder="留空则不显示"
+                                  aria-label="经历概述显示名称"
+                                />
+                                <span className="text-[10px] text-slate-400">可改名，留空则隐藏</span>
+                              </div>
                               <span className="text-[10px] font-bold text-slate-500">部门与业务背景简述：</span>
                               <textarea 
                                 value={intern.description}
@@ -1595,6 +1610,18 @@ export const ResumeEditor: React.FC<ResumeEditorProps> = ({ data, onChange, onRe
                           />
 
                           <div className="space-y-1.5">
+                            <div className="flex items-center gap-2 flex-wrap">
+                              <span className="text-[10px] font-bold text-slate-500">概述显示名称：</span>
+                              <input
+                                type="text"
+                                value={proj.descriptionLabel}
+                                onChange={(e) => handleProjectChange(proj.id, 'descriptionLabel', e.target.value)}
+                                className="editor-input max-w-40"
+                                placeholder="留空则不显示"
+                                aria-label="项目描述显示名称"
+                              />
+                              <span className="text-[10px] text-slate-400">可改名，留空则隐藏</span>
+                            </div>
                             <span className="text-[10px] font-bold text-slate-500">项目/课题背景描述：</span>
                             <textarea 
                               value={proj.description}

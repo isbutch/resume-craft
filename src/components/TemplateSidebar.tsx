@@ -2,6 +2,7 @@ import React from 'react';
 import { ResumeData } from '../types';
 import { LucideIcon } from './LucideIcon';
 import { getAvatarSrc } from '../utils/avatarHelper';
+import { ExperienceDescription, stripLeadingDescriptionLabel } from './ExperienceDescription';
 
 interface TemplateProps {
   data: ResumeData;
@@ -332,10 +333,13 @@ export const TemplateSidebar: React.FC<TemplateProps> = ({ data }) => {
 
                         <div className="space-y-0.5 text-xs">
                           {proj.description && (
-                            <div className={`text-justify flex items-start gap-1 ${spacingClass}`}>
-                              <span className="font-bold text-slate-900 shrink-0">项目描述:</span>
-                              <span className="text-slate-700 flex-1">{proj.description}</span>
-                            </div>
+                            <ExperienceDescription
+                              label={proj.descriptionLabel}
+                              themeColor={themeColor}
+                              className={spacingClass}
+                            >
+                              {renderLines(stripLeadingDescriptionLabel(proj.description, proj.descriptionLabel))}
+                            </ExperienceDescription>
                           )}
                           {proj.contributions && (
                             <div className="space-y-0.5">
@@ -394,9 +398,13 @@ export const TemplateSidebar: React.FC<TemplateProps> = ({ data }) => {
 
                         <div className="space-y-0.5 text-xs">
                           {intern.description && (
-                            <div className={`text-slate-700 text-justify leading-relaxed ${spacingClass}`}>
-                              {renderLines(intern.description)}
-                            </div>
+                            <ExperienceDescription
+                              label={intern.descriptionLabel}
+                              themeColor={themeColor}
+                              className={spacingClass}
+                            >
+                              {renderLines(stripLeadingDescriptionLabel(intern.description, intern.descriptionLabel))}
+                            </ExperienceDescription>
                           )}
                           {intern.contributions && (
                             <div className="space-y-0.5">

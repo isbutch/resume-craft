@@ -2,6 +2,7 @@ import React from 'react';
 import { ResumeData } from '../types';
 import { LucideIcon } from './LucideIcon';
 import { getAvatarSrc } from '../utils/avatarHelper';
+import { ExperienceDescription, stripLeadingDescriptionLabel } from './ExperienceDescription';
 
 interface TemplateProps {
   data: ResumeData;
@@ -307,9 +308,13 @@ export const TemplateClassic: React.FC<TemplateProps> = ({ data }) => {
 
                         <div className="space-y-1 pl-1">
                           {intern.description && (
-                            <div className={`text-xs text-slate-700 text-justify leading-relaxed ${spacingClass}`}>
-                              {renderLines(intern.description)}
-                            </div>
+                            <ExperienceDescription
+                              label={intern.descriptionLabel}
+                              themeColor={themeColor}
+                              className={`text-xs ${spacingClass}`}
+                            >
+                              {renderLines(stripLeadingDescriptionLabel(intern.description, intern.descriptionLabel))}
+                            </ExperienceDescription>
                           )}
                           {intern.contributions && (
                             <div className="text-xs space-y-0.5">
@@ -457,13 +462,13 @@ export const TemplateClassic: React.FC<TemplateProps> = ({ data }) => {
 
                         <div className="space-y-1 pl-1">
                           {proj.description && (
-                            <div className={`text-xs text-justify flex items-start gap-1.5 ${spacingClass}`}>
-                              <span className="font-bold text-slate-950 shrink-0 flex items-center gap-1">
-                                <span className="w-1 h-1 rounded-full shrink-0" style={{ backgroundColor: themeColor }}></span>
-                                项目描述:
-                              </span>
-                              <span className="text-slate-700 font-normal flex-1">{renderFormattedText(proj.description)}</span>
-                            </div>
+                            <ExperienceDescription
+                              label={proj.descriptionLabel}
+                              themeColor={themeColor}
+                              className={`text-xs ${spacingClass}`}
+                            >
+                              {renderLines(stripLeadingDescriptionLabel(proj.description, proj.descriptionLabel))}
+                            </ExperienceDescription>
                           )}
 
                           {proj.contributions && (

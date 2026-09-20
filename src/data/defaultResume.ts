@@ -51,6 +51,7 @@ export const INITIAL_RESUME_DATA: ResumeData = {
           role: '后端开发',
           timePeriod: '2023年03月 - 2023年08月',
           techChain: ['Java', 'Spring Boot', 'MySQL', 'Redis', 'Docker'],
+          descriptionLabel: '项目描述',
           description: '面向内部文档检索与知识沉淀的示例系统，提供资料上传、权限分级、全文检索与问答记录管理能力。',
           contributions: '• 负责文档、目录与成员权限的数据模型及接口设计，梳理角色边界与资源校验规则，降低权限逻辑分散带来的维护成本。\n• 为高频检索条件设计缓存键和失效策略，并通过接口日志记录关键查询参数，便于定位命中率与响应时间问题。\n• 使用 Docker 统一本地运行环境，补齐接口说明与异常返回规范，使前后端联调和新成员上手更顺畅。'
         }
@@ -65,6 +66,7 @@ export const INITIAL_RESUME_DATA: ResumeData = {
           role: '后端开发实习生',
           timePeriod: '2022年07月 - 2022年12月',
           techChain: ['Spring Boot', 'MySQL', 'Redis', 'Git'],
+          descriptionLabel: '经历概述',
           description: '参与业务后台的功能迭代与运营支持，协助完善订单查询、状态流转和基础数据管理模块。',
           contributions: '• 在指导下完成订单筛选、状态更新和导出接口，按业务规则补充输入校验、权限判断和可读的错误提示。\n• 协助排查一次查询超时问题：结合执行计划与慢日志定位索引缺失，提交优化建议并完成回归验证。\n• 整理常见问题和发布检查清单，将重复沟通内容沉淀为团队可复用文档。'
         }
@@ -79,6 +81,7 @@ export const INITIAL_RESUME_DATA: ResumeData = {
           role: '方案设计与开发',
           timePeriod: '2022年03月 - 2022年06月',
           techChain: ['Java', 'Prometheus', 'Grafana', 'Docker'],
+          descriptionLabel: '项目情况',
           description: '围绕服务监控、告警与问题定位设计的课程实践，用于展示从指标采集到故障复盘的完整技术表达。',
           contributions: '• 设计请求量、错误率和响应时间三类核心指标面板，并为异常波动设置分级告警阈值。\n• 编写故障演练记录模板，按“现象—排查—修复—预防”沉淀定位过程，帮助后续问题更快复现与验证。'
         }

@@ -340,10 +340,10 @@ export const TechTagManager: React.FC<TechTagManagerProps> = ({
                 onDrop={(e) => handleDrop(e, index)}
                 onDragEnd={handleDragEnd}
                 onDoubleClick={() => handleStartEdit(index)}
-                className={`group relative px-2 py-1 rounded-lg border text-[11px] font-semibold select-none flex items-center gap-1.5 transition-all duration-150 ${
+                className={`group relative px-2 py-1 rounded-lg border text-[11px] font-semibold select-none flex items-center gap-1.5 transition-[border-color,background-color,box-shadow,opacity] duration-150 ${
                   isDragging ? 'opacity-40 border-dashed border-indigo-400 bg-indigo-50' : ''
                 } ${
-                  isDragOver ? 'border-2 border-indigo-500 bg-indigo-50 scale-105' : 'bg-white border-slate-300 text-slate-800 hover:border-indigo-400 hover:shadow-xs'
+                  isDragOver ? 'border-indigo-500 bg-indigo-50 ring-1 ring-indigo-300' : 'bg-white border-slate-300 text-slate-800 hover:border-indigo-400 hover:shadow-xs'
                 }`}
               >
                 {/* Drag handle / reorder indicator */}
@@ -371,7 +371,7 @@ export const TechTagManager: React.FC<TechTagManagerProps> = ({
                     <button
                       type="button"
                       onClick={() => handleMove(index, 'left')}
-                      className="p-0.5 text-slate-400 hover:text-slate-700 transition cursor-pointer hidden group-hover:inline-block"
+                      className="p-0.5 text-slate-400 hover:text-slate-700 transition cursor-pointer invisible opacity-0 pointer-events-none group-hover:visible group-hover:opacity-100 group-hover:pointer-events-auto"
                       title="左移"
                     >
                       <LucideIcon name="ChevronLeft" size={10} />
@@ -383,7 +383,7 @@ export const TechTagManager: React.FC<TechTagManagerProps> = ({
                     <button
                       type="button"
                       onClick={() => handleMove(index, 'right')}
-                      className="p-0.5 text-slate-400 hover:text-slate-700 transition cursor-pointer hidden group-hover:inline-block"
+                      className="p-0.5 text-slate-400 hover:text-slate-700 transition cursor-pointer invisible opacity-0 pointer-events-none group-hover:visible group-hover:opacity-100 group-hover:pointer-events-auto"
                       title="右移"
                     >
                       <LucideIcon name="ChevronRight" size={10} />

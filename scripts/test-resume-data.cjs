@@ -14,14 +14,18 @@ check('JSON backup round-trip preserves all existing fields and normalizes idemp
  const compare = (a, b) => { if (a && typeof a === 'object') { for (const key of Object.keys(a)) compare(a[key], b[key]); } else assert.deepEqual(b, a); };
  compare(source, normalized); assert.deepEqual(parseResume(normalized), normalized);
 });
+check('Custom and hidden description labels survive JSON normalization', () => {
+ const data = freshResume(); data.sections.projects.items[0].descriptionLabel = '项目背景'; data.sections.internships.items[0].descriptionLabel = '';
+ const parsed = parseResume(data); assert.equal(parsed.sections.projects.items[0].descriptionLabel, '项目背景'); assert.equal(parsed.sections.internships.items[0].descriptionLabel, '');
+});
 check('Blank resume has no sample personal data or items', () => {
  const data = blankResume(); assert.equal(data.personalInfo.name, ''); assert.equal(data.personalInfo.avatar, '');
  assert.equal(data.styling.showAvatar, false);
  for (const section of Object.values(data.sections)) assert.deepEqual(section.items, []);
 });
 check('Legacy partial headers merge defaults', () => {
- const data = freshResume(); data.sections.education.header = { title: '学历' }; delete data.styling; delete data.sections.research;
- const parsed = parseResume(data); assert.equal(parsed.sections.education.header.title, '学历'); assert.equal(parsed.sections.education.header.show, true); assert.ok(parsed.sections.research);
+ const data = freshResume(); data.sections.education.header = { title: '学历' }; delete data.sections.projects.items[0].descriptionLabel; delete data.styling; delete data.sections.research;
+ const parsed = parseResume(data); assert.equal(parsed.sections.education.header.title, '学历'); assert.equal(parsed.sections.education.header.show, true); assert.equal(parsed.sections.projects.items[0].descriptionLabel, '项目描述'); assert.ok(parsed.sections.research);
 });
 for (const [name, mutate] of [
  ['null personal info', d => d.personalInfo = null], ['contacts object', d => d.personalInfo.contacts = {}],

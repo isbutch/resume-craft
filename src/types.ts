@@ -64,6 +64,7 @@ export interface ProjectItem {
   role: string; // e.g. "开发人员"
   timePeriod: string; // e.g. "2022年10月 - 2023年01月"
   techChain: string[]; // Tech stacks to highlight, e.g. ["Spring Boot", "JWT", "Redis"]
+  descriptionLabel: string; // Custom label shown before the description; empty hides the label
   description: string; // Overall project description
   contributions: string; // Work details / accomplishments
 }

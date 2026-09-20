@@ -65,7 +65,8 @@ export function parseResume(value: unknown): ResumeData {
       return skill as ResumeData['sections']['skills']['items'][number];
     }));
     else result.sections[key]!.items = uniqueIds(list(items, item => {
-      const project = fields(item, { id: '', name: '', role: '', timePeriod: '', description: '', contributions: '' });
+      const defaultDescriptionLabel = key === 'projects' ? '项目描述' : key === 'internships' ? '经历概述' : '项目情况';
+      const project = fields(item, { id: '', name: '', role: '', timePeriod: '', descriptionLabel: defaultDescriptionLabel, description: '', contributions: '' });
       const techChain = list(object(item).techChain ?? [], tag => { if (typeof tag !== 'string') throw new Error('技术标签必须为文本'); return tag; });
       return { ...project, techChain };
     }));
