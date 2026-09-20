@@ -162,6 +162,25 @@
   #print-portal .resume-paper-container [class*="text-slate-"] {
     color: #1a1a1a !important;
   }
+
+  /* Specific print enhancement for 霞鹜文楷: ensures font is preserved and ink density is crisp */
+  #print-portal .resume-paper-container.is-font-mono,
+  #print-portal .resume-paper-container[data-font="mono"] {
+    font-family: "LXGW WenKai Screen", "霞鹜文楷 屏幕阅读版", "LXGW WenKai", "霞鹜文楷", "LXGW WenKai Mono", "霞鹜文楷 等宽", "KaiTi", "STKaiti", sans-serif !important;
+    color: #000000 !important;
+    font-weight: 480 !important;
+  }
+  #print-portal .resume-paper-container.is-font-mono [class*="text-slate-"],
+  #print-portal .resume-paper-container[data-font="mono"] [class*="text-slate-"] {
+    color: #0f172a !important;
+  }
+  #print-portal .resume-paper-container.is-font-mono .font-bold,
+  #print-portal .resume-paper-container.is-font-mono strong,
+  #print-portal .resume-paper-container[data-font="mono"] .font-bold,
+  #print-portal .resume-paper-container[data-font="mono"] strong {
+    color: #000000 !important;
+    font-weight: 700 !important;
+  }
 }
 
 /* When print-portal is NOT printing, keep it invisible on screen */

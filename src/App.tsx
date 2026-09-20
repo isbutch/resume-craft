@@ -197,7 +197,19 @@ export default function App() {
 
     try {
       // Font readiness prevents printing during a web-font swap.
-      await withTimeout(document.fonts.ready);
+      if (document.fonts) {
+        try {
+          await withTimeout(Promise.all([
+            document.fonts.ready,
+            document.fonts.load('12px "LXGW WenKai Screen"'),
+            document.fonts.load('bold 12px "LXGW WenKai Screen"'),
+            document.fonts.load('12px "LXGW WenKai"'),
+            document.fonts.load('bold 12px "LXGW WenKai"'),
+          ]), 5000);
+        } catch {
+          // If offline or font load times out, proceed with existing fonts
+        }
+      }
       const originals = Array.from(source.querySelectorAll('img'));
       const copies = Array.from(clone.querySelectorAll('img'));
       await Promise.all(originals.map((image, index) => preparePrintImage(image, copies[index])));

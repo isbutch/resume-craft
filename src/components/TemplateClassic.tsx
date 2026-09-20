@@ -43,6 +43,25 @@ export const TemplateClassic: React.FC<TemplateProps> = ({ data }) => {
     relaxed: 'leading-[1.62]'
   }[lineSpacing || 'normal'];
 
+  // Simple markdown bold renderer: converts **text** to bold <strong> tags
+  const renderFormattedText = (content: string) => {
+    if (!content) return null;
+    if (!content.includes('**')) return content;
+    const parts = content.split(/(\*\*[^*]+\*\*)/g);
+    return parts.map((part, i) => {
+      if (part.startsWith('**') && part.endsWith('**') && part.length > 4) {
+        return (
+          <strong key={i} className="font-bold text-slate-950">
+            {part.slice(2, -2)}
+          </strong>
+        );
+      }
+      return part;
+    });
+  };
+
+  const bulletRegex = /^[•\-*▪●·○◆]\s*/;
+
   // Parse multiline string nicely
   const renderLines = (text: string) => {
     if (!text) return null;
@@ -52,12 +71,9 @@ export const TemplateClassic: React.FC<TemplateProps> = ({ data }) => {
 
       // Detect subheaders or markers (EndsWith(':') is removed to allow unified kvMatch bolding)
       const isSubHeading = trimmed.startsWith('★') || trimmed.startsWith('■');
-      const isBullet = trimmed.startsWith('•') || trimmed.startsWith('-') || trimmed.startsWith('*') || trimmed.startsWith('▪');
+      const isBullet = !isSubHeading && bulletRegex.test(trimmed);
       
-      let content = trimmed;
-      if (isBullet) {
-        content = trimmed.substring(1).trim();
-      }
+      const content = isBullet ? trimmed.replace(bulletRegex, '').trim() : trimmed;
 
       if (isSubHeading) {
         let prefix = '■';
@@ -75,20 +91,21 @@ export const TemplateClassic: React.FC<TemplateProps> = ({ data }) => {
         return (
           <div key={idx} className={`font-semibold text-slate-800 ${idx > 0 ? 'mt-2 mb-0.5' : 'mb-0.5'} flex items-center gap-1.5 text-xs`}>
             <span style={{ color: themeColor }}>{prefix}</span>
-            <span>{displayContent}</span>
+            <span>{renderFormattedText(displayContent)}</span>
           </div>
         );
       }
 
-      let contentNode: React.ReactNode = content;
-      
       // Auto-bold key-value pairs (e.g. "所获荣誉: 一等奖", "岗位：前端", "角色定位/所获荣誉等级:")
-      const kvMatch = content.match(/^([^:：]{2,25})[:：]\s*(.*)$/);
+      // Highlights the key before the colon (bold, jet black) while keeping the description regular weight
+      const kvMatch = content.match(/^([^:：]{2,25})([:：])\s*(.*)$/);
+      let contentNode: React.ReactNode = renderFormattedText(content);
+      
       if (kvMatch && !isSubHeading) {
         contentNode = (
           <>
-            <span className="font-bold text-slate-950 mr-1">{kvMatch[1]}:</span>
-            <span>{kvMatch[2]}</span>
+            <span className="font-bold text-slate-950 mr-1">{kvMatch[1]}{kvMatch[2]}</span>
+            <span className="font-normal text-slate-700">{renderFormattedText(kvMatch[3])}</span>
           </>
         );
       }
@@ -96,9 +113,9 @@ export const TemplateClassic: React.FC<TemplateProps> = ({ data }) => {
       return (
         <div key={idx} className={`flex items-start gap-1.5 py-[1px] text-justify ${spacingClass}`}>
           {isBullet ? (
-            <span className="w-1.5 h-1.5 rounded-full bg-slate-400 shrink-0 mt-[5px] mr-0.5"></span>
+            <span className="w-1.5 h-1.5 rounded-full bg-slate-400 shrink-0 mt-[5.5px] mr-0.5"></span>
           ) : null}
-          <span className={`flex-1 text-slate-900 font-[450] ${spacingClass}`}>{contentNode}</span>
+          <div className={`flex-1 text-slate-700 font-normal ${spacingClass}`}>{contentNode}</div>
         </div>
       );
     });
@@ -106,20 +123,20 @@ export const TemplateClassic: React.FC<TemplateProps> = ({ data }) => {
 
   const renderInlineKV = (text: string) => {
     if (!text) return null;
-    const kvMatch = text.match(/^([^:：]{2,25})[:：]\s*(.*)$/);
+    const kvMatch = text.match(/^([^:：]{2,25})([:：])\s*(.*)$/);
     if (kvMatch) {
       return (
         <div className="flex items-center gap-1.5 before:content-[''] before:h-3 before:w-[1.5px] before:bg-slate-400 before:rounded-full ml-0.5 pl-0.5">
-          <span className="text-xs text-slate-900 font-[450]">
-            <span className="font-bold text-slate-950 mr-1">{kvMatch[1]}:</span>
-            <span>{kvMatch[2]}</span>
+          <span className="text-xs font-normal text-slate-700">
+            <span className="font-bold text-slate-950 mr-1">{kvMatch[1]}{kvMatch[2]}</span>
+            <span>{renderFormattedText(kvMatch[3])}</span>
           </span>
         </div>
       );
     }
     return (
       <div className="flex items-center gap-1.5 before:content-[''] before:h-3 before:w-[1.5px] before:bg-slate-400 before:rounded-full ml-0.5 pl-0.5">
-        <span className="text-xs text-slate-800 font-[450]">{text}</span>
+        <span className="text-xs text-slate-700 font-normal">{renderFormattedText(text)}</span>
       </div>
     );
   };
@@ -352,11 +369,11 @@ export const TemplateClassic: React.FC<TemplateProps> = ({ data }) => {
                         <div className="space-y-1 pl-1">
                           {item.description && (
                             <div className={`text-xs text-justify flex items-start gap-1.5 ${spacingClass}`}>
-                              <span className="font-bold text-slate-900 shrink-0 flex items-center gap-1">
-                                <span className="w-1 h-1 rounded-full shrink-0" style={{ backgroundColor: themeColor }}></span>
+                              <span className="font-bold text-slate-950 shrink-0 flex items-center gap-1">
+                                <span className="w-1.5 h-1.5 rounded-full shrink-0" style={{ backgroundColor: themeColor }}></span>
                                 项目情况:
                               </span>
-                              <span className="text-slate-700 flex-1">{item.description}</span>
+                              <span className="text-slate-700 font-normal flex-1">{renderFormattedText(item.description)}</span>
                             </div>
                           )}
                           {item.contributions && (
@@ -441,11 +458,11 @@ export const TemplateClassic: React.FC<TemplateProps> = ({ data }) => {
                         <div className="space-y-1 pl-1">
                           {proj.description && (
                             <div className={`text-xs text-justify flex items-start gap-1.5 ${spacingClass}`}>
-                              <span className="font-bold text-slate-900 shrink-0 flex items-center gap-1">
+                              <span className="font-bold text-slate-950 shrink-0 flex items-center gap-1">
                                 <span className="w-1 h-1 rounded-full shrink-0" style={{ backgroundColor: themeColor }}></span>
                                 项目描述:
                               </span>
-                              <span className="text-slate-700 flex-1">{proj.description}</span>
+                              <span className="text-slate-700 font-normal flex-1">{renderFormattedText(proj.description)}</span>
                             </div>
                           )}
 

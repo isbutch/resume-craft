@@ -46,9 +46,17 @@ const QuickFormatBar: React.FC<{
       type="button"
       onClick={() => onInsert('核心亮点: ')}
       className="px-1.5 py-0.5 rounded bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium transition cursor-pointer"
-      title="插入自动加粗键值"
+      title="冒号前的词组会自动加粗高亮（如：核心亮点: 内容）"
     >
       加粗标题:
+    </button>
+    <button
+      type="button"
+      onClick={() => onInsert('**重点内容**')}
+      className="px-1.5 py-0.5 rounded bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium transition cursor-pointer"
+      title="使用 Markdown 语法局部加粗文本"
+    >
+      **文本加粗**
     </button>
   </div>
 );

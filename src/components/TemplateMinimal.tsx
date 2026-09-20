@@ -41,26 +41,62 @@ export const TemplateMinimal: React.FC<TemplateProps> = ({ data }) => {
     relaxed: 'leading-[1.62]'
   }[lineSpacing || 'normal'];
 
+  // Simple markdown bold renderer: converts **text** to bold <strong> tags
+  const renderFormattedText = (content: string) => {
+    if (!content) return null;
+    if (!content.includes('**')) return content;
+    const parts = content.split(/(\*\*[^*]+\*\*)/g);
+    return parts.map((part, i) => {
+      if (part.startsWith('**') && part.endsWith('**') && part.length > 4) {
+        return (
+          <strong key={i} className="font-bold text-slate-950">
+            {part.slice(2, -2)}
+          </strong>
+        );
+      }
+      return part;
+    });
+  };
+
+  const bulletRegex = /^[•\-*▪●·○◆]\s*/;
+
   const renderLines = (text: string) => {
     if (!text) return null;
     return text.split('\n').map((line, idx) => {
       const trimmed = line.trim();
       if (!trimmed) return <div key={idx} className="h-1"></div>;
       
-      const isBullet = trimmed.startsWith('•') || trimmed.startsWith('-') || trimmed.startsWith('*') || trimmed.startsWith('▪');
-      let content = trimmed;
-      if (isBullet) {
-        content = trimmed.substring(1).trim();
+      const isSubHeading = trimmed.startsWith('★') || trimmed.startsWith('■');
+      const isBullet = !isSubHeading && bulletRegex.test(trimmed);
+      const content = isBullet ? trimmed.replace(bulletRegex, '').trim() : trimmed;
+
+      if (isSubHeading) {
+        let prefix = '■';
+        let displayContent = content;
+        if (trimmed.startsWith('★')) {
+          prefix = '★';
+          displayContent = trimmed.substring(1).trim();
+        } else if (trimmed.startsWith('■')) {
+          prefix = '■';
+          displayContent = trimmed.substring(1).trim();
+        }
+        return (
+          <div key={idx} className={`font-semibold text-slate-850 ${idx > 0 ? 'mt-1.5 mb-0.5' : 'mb-0.5'} flex items-center gap-1.5 text-xs`}>
+            <span style={{ color: themeColor }}>{prefix}</span>
+            <span>{renderFormattedText(displayContent)}</span>
+          </div>
+        );
       }
 
       // Auto-bold key-value pairs
-      const kvMatch = content.match(/^([^:：]{2,25})[:：]\s*(.*)$/);
-      let contentNode: React.ReactNode = content;
-      if (kvMatch) {
+      // Highlights the key before the colon (bold, jet black) while keeping the description regular weight
+      const kvMatch = content.match(/^([^:：]{2,25})([:：])\s*(.*)$/);
+      let contentNode: React.ReactNode = renderFormattedText(content);
+      if (kvMatch && !isSubHeading) {
         contentNode = (
           <>
-            <span className="font-bold text-slate-950 mr-1">{kvMatch[1]}:</span>
-            <span>{kvMatch[2]}</span>
+            <span className="font-bold text-slate-950 mr-1">{kvMatch[1]}{kvMatch[2]}</span>
+            <span className="font-normal text-slate-700">{renderFormattedText(kvMatch[3])}</span>
           </>
         );
       }
@@ -70,7 +106,7 @@ export const TemplateMinimal: React.FC<TemplateProps> = ({ data }) => {
           {isBullet ? (
             <span className="w-1.5 h-1.5 rounded-full bg-slate-350 shrink-0 mt-[5.5px] mr-1.5"></span>
           ) : null}
-          <span className="flex-1 font-[420]">{contentNode}</span>
+          <div className="flex-1 font-normal text-slate-700">{contentNode}</div>
         </div>
       );
     });

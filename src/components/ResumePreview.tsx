@@ -62,7 +62,7 @@ export const ResumePreview: React.FC<ResumePreviewProps> = ({ data, onChange }) 
       case 'serif':
         return '"SimSun", "STSong", "Songti SC", Georgia, "Times New Roman", serif';
       case 'mono':
-        return '"LXGW WenKai", "LXGW WenKai Mono", "Microsoft YaHei", "PingFang SC", "Hiragino Sans GB", system-ui, sans-serif';
+        return '"LXGW WenKai Screen", "霞鹜文楷 屏幕阅读版", "LXGW WenKai", "霞鹜文楷", "LXGW WenKai Mono", "霞鹜文楷 等宽", "KaiTi", "STKaiti", -apple-system, sans-serif';
       default:
         return '"Microsoft YaHei", "PingFang SC", "Hiragino Sans GB", system-ui, sans-serif';
     }
@@ -384,9 +384,10 @@ export const ResumePreview: React.FC<ResumePreviewProps> = ({ data, onChange }) 
           align-items: center;
         }
 
-        /* font-mono now maps to LXGW WenKai */
-        .resume-paper-container .font-mono {
-          font-family: "LXGW WenKai", "LXGW WenKai Mono", "Microsoft YaHei", "PingFang SC", "Hiragino Sans GB", system-ui, sans-serif;
+        /* font-mono now maps to LXGW WenKai with screen-optimized variant */
+        .resume-paper-container .font-mono,
+        .resume-paper-container.is-font-mono {
+          font-family: "LXGW WenKai Screen", "霞鹜文楷 屏幕阅读版", "LXGW WenKai", "霞鹜文楷", "LXGW WenKai Mono", "霞鹜文楷 等宽", "KaiTi", "STKaiti", system-ui, sans-serif;
           line-height: 1.5;
         }
 
@@ -420,13 +421,38 @@ export const ResumePreview: React.FC<ResumePreviewProps> = ({ data, onChange }) 
           font-size: ${fontSize === 'sm' ? '9.5px' : fontSize === 'base' ? '10.5px' : '11.5px'} !important;
         }
         
-        /* Darken text colors universally for better contrast */
-        .resume-paper-container .text-slate-600,
+        /* Refined typography contrast for standard fonts */
         .resume-paper-container .text-slate-600 {
-          color: #1e293b !important;
+          color: #475569 !important;
         }
         .resume-paper-container .text-slate-700 {
-          color: #111827 !important;
+          color: #334155 !important;
+        }
+
+        /* Enhanced ink density & stroke weight specifically for 霞鹜文楷 (mono) to fix faintness */
+        .resume-paper-container.is-font-mono,
+        .resume-paper-container[data-font="mono"] {
+          font-weight: 480;
+        }
+        .resume-paper-container.is-font-mono .text-slate-700,
+        .resume-paper-container[data-font="mono"] .text-slate-700 {
+          color: #1e293b !important;
+          font-weight: 480;
+        }
+        .resume-paper-container.is-font-mono .text-slate-600,
+        .resume-paper-container[data-font="mono"] .text-slate-600 {
+          color: #334155 !important;
+        }
+        .resume-paper-container.is-font-mono .text-slate-800,
+        .resume-paper-container[data-font="mono"] .text-slate-800 {
+          color: #0f172a !important;
+        }
+        .resume-paper-container.is-font-mono .font-bold,
+        .resume-paper-container.is-font-mono strong,
+        .resume-paper-container[data-font="mono"] .font-bold,
+        .resume-paper-container[data-font="mono"] strong {
+          color: #020617 !important;
+          font-weight: 700 !important;
         }
 
         /* ===== Elegant Thin Scrollbar for zoom container ===== */
@@ -578,7 +604,8 @@ export const ResumePreview: React.FC<ResumePreviewProps> = ({ data, onChange }) 
             <div
               id="resume-print-area"
               ref={paperRef}
-              className={`resume-paper-container bg-white text-slate-800 transition-all duration-300 ${getSpacingClass()}`}
+              data-font={fontFamily}
+              className={`resume-paper-container bg-white text-slate-800 transition-all duration-300 ${getSpacingClass()} ${fontFamily === 'mono' ? 'is-font-mono' : ''}`}
               style={{
                 fontFamily: getFontFamilyStyle(),
                 width: '210mm',
