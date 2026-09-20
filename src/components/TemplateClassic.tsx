@@ -290,12 +290,8 @@ export const TemplateClassic: React.FC<TemplateProps> = ({ data }) => {
 
                         <div className="space-y-1 pl-1">
                           {intern.description && (
-                            <div className={`text-xs text-justify flex items-start gap-1.5 ${spacingClass}`}>
-                              <span className="font-bold text-slate-900 shrink-0 flex items-center gap-1">
-                                <span className="w-1 h-1 rounded-full shrink-0" style={{ backgroundColor: themeColor }}></span>
-                                职责描述:
-                              </span>
-                              <span className="text-slate-700 flex-1">{intern.description}</span>
+                            <div className={`text-xs text-slate-700 text-justify leading-relaxed ${spacingClass}`}>
+                              {renderLines(intern.description)}
                             </div>
                           )}
                           {intern.contributions && (

@@ -57,7 +57,7 @@ export const INITIAL_RESUME_DATA: ResumeData = {
       ]
     },
     internships: {
-      header: { id: 's-intern', title: '工作经历', icon: 'Sparkles', show: true },
+      header: { id: 's-intern', title: '实习经历', icon: 'Briefcase', show: true },
       items: [
         {
           id: 'intern-1',

@@ -338,7 +338,7 @@ export const TemplateSidebar: React.FC<TemplateProps> = ({ data }) => {
                   <div className="flex items-center gap-2 pb-1 border-b border-slate-200">
                     <span className="w-1.5 h-3.5 rounded-full shrink-0" style={{ backgroundColor: themeColor }}></span>
                     <h2 className={`font-bold text-slate-900 tracking-wider ${textSizes.sectionTitle}`}>
-                      {sections.internships.header.title || '工作与实习经历'}
+                      {sections.internships.header.title || '实习经历'}
                     </h2>
                   </div>
                   
@@ -377,9 +377,8 @@ export const TemplateSidebar: React.FC<TemplateProps> = ({ data }) => {
 
                         <div className="space-y-0.5 text-xs">
                           {intern.description && (
-                            <div className={`text-justify flex items-start gap-1 ${spacingClass}`}>
-                              <span className="font-bold text-slate-900 shrink-0">职责定位:</span>
-                              <span className="text-slate-700 flex-1">{intern.description}</span>
+                            <div className={`text-slate-700 text-justify leading-relaxed ${spacingClass}`}>
+                              {renderLines(intern.description)}
                             </div>
                           )}
                           {intern.contributions && (

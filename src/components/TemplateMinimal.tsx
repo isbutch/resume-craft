@@ -260,7 +260,7 @@ export const TemplateMinimal: React.FC<TemplateProps> = ({ data }) => {
               <section className="group-section space-y-1" key="internships">
                 <div className="flex items-baseline justify-between border-b border-slate-200 pb-0.5">
                   <h2 className={`font-bold tracking-wider text-slate-950 uppercase ${textSizes.sectionTitle}`}>
-                    {sections.internships.header.title || '工作与实习经历'}
+                    {sections.internships.header.title || '实习经历'}
                   </h2>
                   <span className="h-[2px] w-6 rounded-full" style={{ backgroundColor: themeColor }}></span>
                 </div>
@@ -295,9 +295,8 @@ export const TemplateMinimal: React.FC<TemplateProps> = ({ data }) => {
 
                       <div className="space-y-0.5 text-xs pt-0.5">
                         {intern.description && (
-                          <div className={`text-slate-700 text-justify flex items-start gap-1 ${spacingClass}`}>
-                            <span className="font-semibold text-slate-900 shrink-0">职责定位:</span>
-                            <span className="flex-1">{intern.description}</span>
+                          <div className={`text-slate-700 text-justify leading-relaxed ${spacingClass}`}>
+                            {renderLines(intern.description)}
                           </div>
                         )}
                         {intern.contributions && (

@@ -58,6 +58,83 @@ const appendSnippet = (currentText: string, snippet: string) => {
   return currentText.endsWith('\n') ? `${currentText}${snippet}` : `${currentText}\n${snippet}`;
 };
 
+interface SectionHeaderSettingsProps {
+  title: string;
+  show: boolean;
+  defaultTitle: string;
+  presets: string[];
+  onTitleChange: (newTitle: string) => void;
+  onShowChange: (show: boolean) => void;
+}
+
+const SectionHeaderSettings: React.FC<SectionHeaderSettingsProps> = ({
+  title,
+  show,
+  defaultTitle,
+  presets,
+  onTitleChange,
+  onShowChange,
+}) => (
+  <div className="p-3 bg-slate-50 border border-slate-200 rounded-xl space-y-2">
+    <div className="flex items-center justify-between">
+      <div className="flex items-center gap-1.5 text-xs font-bold text-slate-700">
+        <LucideIcon name="PenLine" size={13} className="text-slate-500" />
+        <span>模块显示名称与开关</span>
+      </div>
+      <label className="inline-flex items-center gap-1.5 cursor-pointer">
+        <input 
+          type="checkbox" 
+          checked={show}
+          onChange={(e) => onShowChange(e.target.checked)}
+          className="sr-only peer"
+        />
+        <div className="relative w-8 h-4 bg-slate-200 rounded-full peer peer-checked:bg-slate-800 after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:after:translate-x-4"></div>
+        <span className="text-xs text-slate-500 font-bold select-none">在简历中展示</span>
+      </label>
+    </div>
+
+    <div className="flex items-center gap-2">
+      <input
+        type="text"
+        value={title}
+        onChange={(e) => onTitleChange(e.target.value)}
+        placeholder={`自定义模块标题，例如：${defaultTitle}`}
+        className="editor-input flex-1 text-xs py-1.5"
+      />
+      {title !== defaultTitle && (
+        <button
+          type="button"
+          onClick={() => onTitleChange(defaultTitle)}
+          className="px-2 py-1.5 text-[11px] text-slate-500 hover:text-slate-800 border border-slate-200 rounded-lg hover:bg-slate-100 cursor-pointer shrink-0 transition"
+          title={`重置为默认名称: ${defaultTitle}`}
+        >
+          恢复默认
+        </button>
+      )}
+    </div>
+
+    {presets.length > 0 && (
+      <div className="flex items-center gap-1.5 flex-wrap pt-0.5">
+        <span className="text-[10px] text-slate-400 font-medium">常用预设:</span>
+        {presets.map((preset) => (
+          <button
+            key={preset}
+            type="button"
+            onClick={() => onTitleChange(preset)}
+            className={`px-2 py-0.5 text-[10px] rounded-md transition cursor-pointer ${
+              title === preset
+                ? 'bg-slate-800 text-white font-bold shadow-2xs'
+                : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-100 hover:border-slate-300'
+            }`}
+          >
+            {preset}
+          </button>
+        ))}
+      </div>
+    )}
+  </div>
+);
+
 export const ResumeEditor: React.FC<ResumeEditorProps> = ({ data, onChange, onReset }) => {
   const { personalInfo } = data;
   const [themeColorDraft, setThemeColorDraft] = useState(data.styling.themeColor);
@@ -348,7 +425,7 @@ export const ResumeEditor: React.FC<ResumeEditorProps> = ({ data, onChange, onRe
       role: 'Java开发实习生',
       timePeriod: '2023年03月 - 2023年06月',
       techChain: ['Spring Boot', 'MySQL'],
-      description: '简单描述您的实习工作职责与参与的产品业务线。',
+      description: '参与业务系统的功能开发与日常迭代，协助完成基础模块优化。',
       contributions: '• 负责日常代码模块研发与调试验证\n• 与团队共同协作迭代业务核心组件'
     };
     const sectionData = data.sections.internships || { items: [] };
@@ -839,13 +916,14 @@ export const ResumeEditor: React.FC<ResumeEditorProps> = ({ data, onChange, onRe
                 </label>
                 <div className="space-y-1.5">
                   {(data.styling.sectionOrder || ['skills', 'education', 'projects', 'internships', 'research']).map((sectionKey, idx, arr) => {
-                    const labelMap: Record<string, string> = {
+                    const defaultLabelMap: Record<string, string> = {
                       education: '教育背景',
                       skills: '专业技能',
                       projects: '项目经历',
-                      internships: '工作经历',
+                      internships: '实习经历',
                       research: '科研成果与竞赛'
                     };
+                    const displayTitle = data.sections[sectionKey as keyof ResumeData['sections']]?.header?.title || defaultLabelMap[sectionKey] || sectionKey;
 
                     const handleMove = (direction: 'up' | 'down') => {
                       const newOrder = [...arr];
@@ -863,7 +941,7 @@ export const ResumeEditor: React.FC<ResumeEditorProps> = ({ data, onChange, onRe
 
                     return (
                       <div key={sectionKey} className="flex items-center justify-between p-2 border border-slate-200 rounded-lg bg-slate-50/50 hover:bg-slate-50 text-xs">
-                        <span className="font-semibold text-slate-700">{labelMap[sectionKey] || sectionKey}</span>
+                        <span className="font-semibold text-slate-700">{displayTitle}</span>
                         <div className="flex items-center gap-1">
                           <button
                             type="button"
@@ -985,20 +1063,17 @@ export const ResumeEditor: React.FC<ResumeEditorProps> = ({ data, onChange, onRe
           {/* TAB 3: EDUCATION TAB */}
           {activeTab === 'education' && (
             <div className="space-y-5">
+              <SectionHeaderSettings
+                title={data.sections.education.header.title || '教育背景'}
+                show={data.sections.education.header.show}
+                defaultTitle="教育背景"
+                presets={['教育背景', '教育经历', '学习经历']}
+                onTitleChange={(val) => handleSectionHeaderChange('education', 'title', val)}
+                onShowChange={(val) => handleSectionHeaderChange('education', 'show', val)}
+              />
+
               <div className="flex items-center justify-between border-b border-slate-200 pb-2">
-                <div className="flex items-center gap-1.5">
-                  <span className="text-xs font-bold text-slate-700">教育背景列表</span>
-                  <label className="inline-flex items-center gap-1 cursor-pointer scale-75 origin-left">
-                    <input 
-                      type="checkbox" 
-                      checked={data.sections.education.header.show}
-                      onChange={(e) => handleSectionHeaderChange('education', 'show', e.target.checked)}
-                      className="sr-only peer"
-                    />
-                    <div className="relative w-8 h-4 bg-slate-200 rounded-full peer peer-checked:bg-slate-800 after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:after:translate-x-4"></div>
-                    <span className="text-xs text-slate-500 font-bold select-none">显示此模块</span>
-                  </label>
-                </div>
+                <span className="text-xs font-bold text-slate-700">院校记录列表</span>
                 <div className="flex items-center gap-2">
                   {data.sections.education.items.length > 1 && (
                     <div className="flex items-center gap-1 text-[10px] text-slate-400">
@@ -1176,21 +1251,14 @@ export const ResumeEditor: React.FC<ResumeEditorProps> = ({ data, onChange, onRe
           {/* TAB 4: CORE SKILLS */}
           {activeTab === 'skills' && (
             <div className="space-y-4">
-              <div className="flex items-center justify-between border-b border-slate-200 pb-2">
-                <div className="flex items-center gap-1.5">
-                  <span className="text-xs font-bold text-slate-700">专业核心技能点</span>
-                  <label className="inline-flex items-center gap-1 cursor-pointer scale-75 origin-left">
-                    <input 
-                      type="checkbox" 
-                      checked={data.sections.skills.header.show}
-                      onChange={(e) => handleSectionHeaderChange('skills', 'show', e.target.checked)}
-                      className="sr-only peer"
-                    />
-                    <div className="relative w-8 h-4 bg-slate-200 rounded-full peer peer-checked:bg-slate-800 after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:after:translate-x-4"></div>
-                    <span className="text-xs text-slate-500 font-bold select-none">显示此模块</span>
-                  </label>
-                </div>
-              </div>
+              <SectionHeaderSettings
+                title={data.sections.skills.header.title || '专业技能'}
+                show={data.sections.skills.header.show}
+                defaultTitle="专业技能"
+                presets={['专业技能', '技能特长', '核心技能', '专业能力']}
+                onTitleChange={(val) => handleSectionHeaderChange('skills', 'title', val)}
+                onShowChange={(val) => handleSectionHeaderChange('skills', 'show', val)}
+              />
 
               {/* Skill add item */}
               <div className="p-3.5 rounded-xl border border-slate-200 bg-slate-50/50 space-y-2.5">
@@ -1240,20 +1308,17 @@ export const ResumeEditor: React.FC<ResumeEditorProps> = ({ data, onChange, onRe
           {/* TAB 5: PLUGGABLE INTERNSHIP (实习经历) */}
           {activeTab === 'internships' && (
             <div className="space-y-4">
+              <SectionHeaderSettings
+                title={data.sections.internships?.header.title || '实习经历'}
+                show={!!data.sections.internships?.header.show}
+                defaultTitle="实习经历"
+                presets={['实习经历', '工作经历', '实习与工作经历', '工作与实习经历']}
+                onTitleChange={(val) => handleSectionHeaderChange('internships', 'title', val)}
+                onShowChange={(val) => handleSectionHeaderChange('internships', 'show', val)}
+              />
+
               <div className="flex items-center justify-between border-b border-slate-200 pb-2">
-                <div className="flex items-center gap-1.5 flex-wrap">
-                  <span className="text-xs font-bold text-slate-700">实习经历</span>
-                  <label className="inline-flex items-center gap-1 cursor-pointer scale-75 origin-left">
-                    <input 
-                      type="checkbox" 
-                      checked={!!data.sections.internships?.header.show}
-                      onChange={(e) => handleSectionHeaderChange('internships', 'show', e.target.checked)}
-                      className="sr-only peer"
-                    />
-                    <div className="relative w-8 h-4 bg-slate-200 rounded-full peer peer-checked:bg-slate-800 after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:after:translate-x-4"></div>
-                    <span className="text-xs text-slate-500 font-bold select-none">显示此模块</span>
-                  </label>
-                </div>
+                <span className="text-xs font-bold text-slate-700">经历记录列表</span>
                 <div className="flex items-center gap-2">
                   {data.sections.internships && data.sections.internships.items.length > 1 && (
                     <div className="flex items-center gap-1 text-[10px] text-slate-400">
@@ -1372,7 +1437,7 @@ export const ResumeEditor: React.FC<ResumeEditorProps> = ({ data, onChange, onRe
                                 onChange={(e) => handleInternshipChange(intern.id, 'description', e.target.value)}
                                 rows={3}
                                 className="editor-textarea min-h-[4.5rem]"
-                                placeholder="参与核心业务线优化..."
+                                placeholder="简要概括部门业务、负责的产品线或团队定位（简历中将作为独立背景段落自然展示）..."
                               />
                             </div>
 
@@ -1402,20 +1467,17 @@ export const ResumeEditor: React.FC<ResumeEditorProps> = ({ data, onChange, onRe
           {/* TAB 6: PROJECT EXPERIENCE */}
           {activeTab === 'projects' && (
             <div className="space-y-4">
+              <SectionHeaderSettings
+                title={data.sections.projects.header.title || '项目经历'}
+                show={data.sections.projects.header.show}
+                defaultTitle="项目经历"
+                presets={['项目经历', '项目经验', '实践项目', '研究与项目经历']}
+                onTitleChange={(val) => handleSectionHeaderChange('projects', 'title', val)}
+                onShowChange={(val) => handleSectionHeaderChange('projects', 'show', val)}
+              />
+
               <div className="flex items-center justify-between border-b border-slate-200 pb-2">
-                <div className="flex items-center gap-1.5">
-                  <span className="text-xs font-bold text-slate-700">主要研究/实践项目经历</span>
-                  <label className="inline-flex items-center gap-1 cursor-pointer scale-75 origin-left">
-                    <input 
-                      type="checkbox" 
-                      checked={data.sections.projects.header.show}
-                      onChange={(e) => handleSectionHeaderChange('projects', 'show', e.target.checked)}
-                      className="sr-only peer"
-                    />
-                    <div className="relative w-8 h-4 bg-slate-200 rounded-full peer peer-checked:bg-slate-800 after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:after:translate-x-4"></div>
-                    <span className="text-xs text-slate-500 font-bold select-none">显示此模块</span>
-                  </label>
-                </div>
+                <span className="text-xs font-bold text-slate-700">项目记录列表</span>
                 <div className="flex items-center gap-2">
                   {data.sections.projects.items.length > 1 && (
                     <div className="flex items-center gap-1 text-[10px] text-slate-400">
@@ -1560,20 +1622,17 @@ export const ResumeEditor: React.FC<ResumeEditorProps> = ({ data, onChange, onRe
           {/* TAB 7: PLUGGABLE RESEARCH & AWARDS (科研成果与竞赛) */}
           {activeTab === 'research' && (
             <div className="space-y-4">
+              <SectionHeaderSettings
+                title={data.sections.research?.header.title || '科研成果与竞赛'}
+                show={!!data.sections.research?.header.show}
+                defaultTitle="科研成果与竞赛"
+                presets={['科研成果与竞赛', '科研成果', '竞赛与获奖', '学术成果与荣誉']}
+                onTitleChange={(val) => handleSectionHeaderChange('research', 'title', val)}
+                onShowChange={(val) => handleSectionHeaderChange('research', 'show', val)}
+              />
+
               <div className="flex items-center justify-between border-b border-slate-200 pb-2">
-                <div className="flex items-center gap-1.5 flex-wrap">
-                  <span className="text-xs font-bold text-slate-700">科研成果与竞赛</span>
-                  <label className="inline-flex items-center gap-1 cursor-pointer scale-75 origin-left">
-                    <input 
-                      type="checkbox" 
-                      checked={!!data.sections.research?.header.show}
-                      onChange={(e) => handleSectionHeaderChange('research', 'show', e.target.checked)}
-                      className="sr-only peer"
-                    />
-                    <div className="relative w-8 h-4 bg-slate-200 rounded-full peer peer-checked:bg-slate-800 after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:after:translate-x-4"></div>
-                    <span className="text-xs text-slate-500 font-bold select-none">显示此模块</span>
-                  </label>
-                </div>
+                <span className="text-xs font-bold text-slate-700">科研与获奖列表</span>
                 <div className="flex items-center gap-2">
                   {data.sections.research && data.sections.research.items.length > 1 && (
                     <div className="flex items-center gap-1 text-[10px] text-slate-400">
