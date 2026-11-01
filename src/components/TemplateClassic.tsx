@@ -277,12 +277,14 @@ export const TemplateClassic: React.FC<TemplateProps> = ({ data }) => {
                     </h2>
                   </div>
 
-                  <div className="space-y-2">
+                  <div className="space-y-1.5">
                     {sections.internships.items.map((intern, idx) => (
                       <div key={intern.id} className="space-y-1">
                         <div className="flex justify-between items-center flex-wrap gap-2">
                           <div className="flex items-center gap-2">
-                            <span className="font-extrabold text-slate-900">{idx + 1}、{intern.name}</span>
+                            <span className="font-extrabold text-slate-900">
+                              {sections.internships.items.length > 1 ? `${idx + 1}、` : ''}{intern.name}
+                            </span>
                             {intern.role && renderInlineKV(intern.role)}
                           </div>
                           <span className={`text-slate-700 font-medium font-mono ${textSizes.meta}`}>{intern.timePeriod}</span>
@@ -342,12 +344,14 @@ export const TemplateClassic: React.FC<TemplateProps> = ({ data }) => {
                     </h2>
                   </div>
 
-                  <div className="space-y-2">
+                  <div className="space-y-1">
                     {sections.research.items.map((item, idx) => (
                       <div key={item.id} className="space-y-1">
                         <div className="flex justify-between items-center flex-wrap gap-2">
                           <div className="flex items-center gap-2">
-                            <span className="font-extrabold text-slate-900">{idx + 1}、{item.name}</span>
+                            <span className="font-extrabold text-slate-900">
+                              {sections.research.items.length > 1 ? `${idx + 1}、` : ''}{item.name}
+                            </span>
                             {item.role && renderInlineKV(item.role)}
                           </div>
                           <span className={`text-slate-700 font-medium font-mono ${textSizes.meta}`}>{item.timePeriod}</span>
@@ -431,12 +435,14 @@ export const TemplateClassic: React.FC<TemplateProps> = ({ data }) => {
                     </h2>
                   </div>
 
-                  <div className="space-y-2">
+                  <div className="space-y-1.5">
                     {sections.projects.items.map((proj, idx) => (
                       <div key={proj.id} className="space-y-1">
                         <div className="flex justify-between items-center flex-wrap gap-2">
                           <div className="flex items-center gap-2">
-                            <span className="font-extrabold text-slate-900">{idx + 1}、{proj.name}</span>
+                            <span className="font-extrabold text-slate-900">
+                              {sections.projects.items.length > 1 ? `${idx + 1}、` : ''}{proj.name}
+                            </span>
                             {proj.role && renderInlineKV(proj.role)}
                           </div>
                           <span className={`text-slate-700 font-medium font-mono ${textSizes.meta}`}>{proj.timePeriod}</span>

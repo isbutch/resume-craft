@@ -250,7 +250,7 @@ export const TemplateMinimal: React.FC<TemplateProps> = ({ data }) => {
                     <div key={proj.id} className="space-y-0.5">
                       <div className="flex justify-between items-baseline flex-wrap gap-2 text-xs">
                         <div className="font-extrabold text-slate-950 flex items-center gap-1.5">
-                          <span>{idx + 1}. {proj.name}</span>
+                          <span>{sections.projects.items.length > 1 ? `${idx + 1}. ` : ''}{proj.name}</span>
                           {proj.role && (
                             <span className="font-medium text-slate-500 text-[11px] before:content-['('] after:content-[')']">
                               {proj.role}
@@ -310,7 +310,7 @@ export const TemplateMinimal: React.FC<TemplateProps> = ({ data }) => {
                     <div key={intern.id} className="space-y-0.5">
                       <div className="flex justify-between items-baseline flex-wrap gap-2 text-xs">
                         <div className="font-extrabold text-slate-950 flex items-center gap-1.5">
-                          <span>{idx + 1}. {intern.name}</span>
+                          <span>{sections.internships.items.length > 1 ? `${idx + 1}. ` : ''}{intern.name}</span>
                           {intern.role && (
                             <span className="font-medium text-slate-500 text-[11px] before:content-['('] after:content-[')']">
                               {intern.role}
@@ -370,7 +370,7 @@ export const TemplateMinimal: React.FC<TemplateProps> = ({ data }) => {
                     <div key={item.id} className="space-y-0.5">
                       <div className="flex justify-between items-baseline flex-wrap gap-2 text-xs">
                         <div className="font-extrabold text-slate-950 flex items-center gap-1.5">
-                          <span>{idx + 1}. {item.name}</span>
+                          <span>{sections.research.items.length > 1 ? `${idx + 1}. ` : ''}{item.name}</span>
                           {item.role && (
                             <span className="font-medium text-slate-500 text-[11px] before:content-['('] after:content-[')']">
                               {item.role}

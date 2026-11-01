@@ -301,7 +301,7 @@ export const TemplateSidebar: React.FC<TemplateProps> = ({ data }) => {
                       <div key={proj.id} className="space-y-1">
                         <div className="flex justify-between items-center flex-wrap gap-2 text-xs">
                           <div className="flex items-center gap-1.5">
-                            <span className="font-extrabold text-slate-950">{idx + 1}. {proj.name}</span>
+                            <span className="font-extrabold text-slate-950">{sections.projects.items.length > 1 ? `${idx + 1}. ` : ''}{proj.name}</span>
                             {proj.role && (
                               <span className="text-[10.5px] font-semibold text-slate-600 before:content-['|'] before:mr-1 before:text-slate-300">
                                 {proj.role}
@@ -368,7 +368,7 @@ export const TemplateSidebar: React.FC<TemplateProps> = ({ data }) => {
                       <div key={intern.id} className="space-y-1">
                         <div className="flex justify-between items-center text-xs flex-wrap gap-1.5">
                           <div className="flex items-center gap-1.5">
-                            <span className="font-extrabold text-slate-950">{idx + 1}. {intern.name}</span>
+                            <span className="font-extrabold text-slate-950">{sections.internships.items.length > 1 ? `${idx + 1}. ` : ''}{intern.name}</span>
                             {intern.role && (
                               <span className="text-[10.5px] font-semibold text-slate-600 before:content-['|'] before:mr-1 before:text-slate-300">
                                 {intern.role}
@@ -433,7 +433,7 @@ export const TemplateSidebar: React.FC<TemplateProps> = ({ data }) => {
                       <div key={item.id} className="space-y-1">
                         <div className="flex justify-between items-center text-xs flex-wrap gap-1.5">
                           <div className="flex items-center gap-1.5">
-                            <span className="font-extrabold text-slate-950">{idx + 1}. {item.name}</span>
+                            <span className="font-extrabold text-slate-950">{sections.research.items.length > 1 ? `${idx + 1}. ` : ''}{item.name}</span>
                             {item.role && (
                               <span className="text-[10.5px] font-semibold text-slate-600 before:content-['|'] before:mr-1 before:text-slate-300">
                                 {item.role}
