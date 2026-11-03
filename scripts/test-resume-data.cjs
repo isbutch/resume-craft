@@ -60,4 +60,11 @@ check('Retired sidebar and elegant backups retain content with classic layout', 
   assert.equal(parsed.sections.projects.items[0].contributions, data.sections.projects.items[0].contributions);
  }
 });
+check('Single-page setting survives JSON backup and legacy imports keep normal pagination', () => {
+ const data = freshResume(); data.styling.fitToOnePage = true;
+ assert.equal(parseResume(JSON.parse(JSON.stringify(data))).styling.fitToOnePage, true);
+ delete data.styling.fitToOnePage;
+ assert.equal(parseResume(data).styling.fitToOnePage, false);
+ data.styling.fitToOnePage = 'true'; assert.throws(() => parseResume(data));
+});
 console.log(`${count} checks passed.`);

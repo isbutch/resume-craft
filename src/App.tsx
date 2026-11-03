@@ -6,6 +6,7 @@ import { HomePage } from './components/HomePage';
 import { LucideIcon } from './components/LucideIcon';
 import { WechatRewardMenuItem, WechatRewardModal } from './components/WechatReward';
 import { preparePrintImage, withTimeout } from './utils/printPreparation';
+import { prepareSinglePagePrint } from './utils/singlePageLayout';
 import { blankResume, freshResume, parseResume, STORAGE_KEY, MAX_BACKUP_BYTES } from './utils/resumeData';
 
 type DraftLoadResult = {
@@ -214,6 +215,7 @@ export default function App() {
       const copies = Array.from(clone.querySelectorAll('img'));
       await Promise.all(originals.map((image, index) => preparePrintImage(image, copies[index])));
       await new Promise<void>(resolve => requestAnimationFrame(() => requestAnimationFrame(() => resolve())));
+      prepareSinglePagePrint(clone, data.styling);
       window.print();
       // Some browsers return before closing the dialog. Keep the snapshot until
       // afterprint (or the next explicit export), but allow retry if printing is blocked.

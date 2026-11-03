@@ -98,6 +98,7 @@ export const INITIAL_RESUME_DATA: ResumeData = {
     avatarSize: 110,
     sectionSpacing: 'normal',
     pagePadding: 'normal',
+    fitToOnePage: false,
     showAvatar: true,
     sectionOrder: ['skills', 'education', 'projects', 'internships', 'research']
   }

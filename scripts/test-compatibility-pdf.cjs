@@ -7,6 +7,7 @@ require.extensions['.ts'] = (module, filename) => {
   }).outputText, filename);
 };
 const { pageSlices, imagePageLayout } = require('../src/utils/compatibilityPdf.ts');
+const { singlePageLayout, pageMargins } = require('../src/utils/singlePageLayout.ts');
 let count = 0;
 function check(name, run) { run(); count++; console.log('PASS ' + name); }
 check('Slight overflow fits on one A4 page without an almost empty second page', () => {
@@ -33,5 +34,26 @@ check('Bad break candidates cannot cause infinite loops or missing pixels', () =
 });
 check('Invalid dimensions fail before canvas allocation', () => {
   for (const bad of [0, -1, NaN, Infinity, 1.5]) { assert.throws(() => pageSlices(bad, 300)); assert.throws(() => pageSlices(300, bad)); assert.throws(() => imagePageLayout(300, bad)); }
+});
+check('Text PDF and preview share a single-page scale that leaves rounding space', () => {
+  const layout = singlePageLayout(1142, 794, 6, true);
+  assert.equal(layout.pages, 1); assert.ok(layout.scale >= 0.85 && layout.scale < 1);
+  assert.ok(1142 * layout.scale <= layout.available - 1);
+});
+check('Normal mode keeps full-size text and multiple pages', () => {
+  const layout = singlePageLayout(1142, 794, 8, false);
+  assert.equal(layout.scale, 1); assert.equal(layout.pages, 2);
+});
+check('Excess content is neither clipped nor shrunk below readability bound', () => {
+  const layout = singlePageLayout(2400, 794, 6, true);
+  assert.equal(layout.scale, 1); assert.ok(layout.pages > 1);
+});
+check('Blank and already fitting resumes do not enlarge text', () => {
+  for (const height of [0, 500]) { const layout = singlePageLayout(height, 794, 6, true); assert.equal(layout.pages, 1); assert.equal(layout.scale, 1); }
+});
+check('User-selected margins continue to work in single-page mode', () => {
+  assert.deepEqual(pageMargins({pagePadding:'compact',fitToOnePage:true}),{vertical:6,horizontal:10});
+  assert.deepEqual(pageMargins({pagePadding:'comfortable',fitToOnePage:true}),{vertical:15,horizontal:18});
+  assert.deepEqual(pageMargins({pagePadding:'compact'}),{vertical:8,horizontal:12});
 });
 console.log(`${count} PDF pagination checks passed.`);

@@ -3,6 +3,7 @@ import { ResumeData } from '../types';
 import { TemplateClassic } from './TemplateClassic';
 import { TemplateMinimal } from './TemplateMinimal';
 import { LucideIcon } from './LucideIcon';
+import { pageMargins, singlePageLayout } from '../utils/singlePageLayout';
 
 interface ResumePreviewProps {
   data: ResumeData;
@@ -11,18 +12,12 @@ interface ResumePreviewProps {
 
 const A4_WIDTH_PX = 794; // approx width of 210mm in pixels at standard screen DPI
 
-const getPageVerticalMarginMm = (pagePadding: ResumeData['styling']['pagePadding']) => {
-  switch (pagePadding) {
-    case 'compact': return 8;
-    case 'comfortable': return 15;
-    case 'normal':
-    default: return 10;
-  }
-};
-
 export const ResumePreview: React.FC<ResumePreviewProps> = ({ data, onChange }) => {
   const { styling } = data;
-  const { templateId, fontFamily, sectionSpacing, fontSize, lineSpacing = 'normal', pagePadding = 'normal' } = styling;
+  const { templateId, fontFamily, sectionSpacing, fontSize, lineSpacing = 'normal' } = styling;
+  const margins = pageMargins(styling);
+  const fitToOnePage = !!styling.fitToOnePage;
+  const [contentScale, setContentScale] = useState(1);
   const paperRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -83,7 +78,7 @@ export const ResumePreview: React.FC<ResumePreviewProps> = ({ data, onChange }) 
 
       const a4PageHeight = paperWidth * (297 / 210);
       const pixelsPerMm = paperWidth / 210;
-      const pageMarginMm = getPageVerticalMarginMm(pagePadding);
+      const pageMarginMm = margins.vertical;
       const printablePageHeight = a4PageHeight - (pageMarginMm * 2 * pixelsPerMm);
       setPageHeight((current) => (current && Math.abs(current - a4PageHeight) < 0.5 ? current : a4PageHeight));
       const styles = window.getComputedStyle(paper);
@@ -91,7 +86,9 @@ export const ResumePreview: React.FC<ResumePreviewProps> = ({ data, onChange }) 
       const contentHeight = Math.max(content.scrollHeight, content.offsetHeight);
       // Absorb sub-pixel rounding at an exact A4 boundary so a fraction of a
       // pixel cannot create a phantom extra page.
-      const nextPageCount = Math.max(1, Math.ceil((contentHeight - 0.5) / printablePageHeight));
+      const layout = singlePageLayout(contentHeight, paperWidth, pageMarginMm, fitToOnePage);
+      setContentScale(current => current === layout.scale ? current : layout.scale);
+      const nextPageCount = layout.pages;
       const nextBreakPositions = Array.from(
         { length: Math.max(0, nextPageCount - 1) },
         (_, index) => paddingTop + printablePageHeight * (index + 1),
@@ -264,7 +261,7 @@ export const ResumePreview: React.FC<ResumePreviewProps> = ({ data, onChange }) 
   // Line height scaling
   const getLineHeightValue = () => {
     switch (lineSpacing) {
-      case 'tight': return 1.34;
+      case 'tight': return fitToOnePage ? 1.30 : 1.34;
       case 'relaxed': return 1.62;
       case 'normal':
       default: return 1.46;
@@ -273,24 +270,18 @@ export const ResumePreview: React.FC<ResumePreviewProps> = ({ data, onChange }) 
 
   // Page padding rules
   const getPagePaddingStyle = () => {
-    switch (pagePadding) {
-      case 'compact':
-        return '8mm 12mm 8mm 12mm';
-      case 'comfortable':
-        return '15mm 18mm 15mm 18mm';
-      case 'normal':
-      default:
-        return '10mm 15mm 10mm 15mm';
-    }
+    return `${margins.vertical}mm ${margins.horizontal}mm`;
   };
 
   // One-click optimize to single page
   const handleAutoFitSinglePage = () => {
     if (!onChange) return;
+    if (fitToOnePage) { onChange({ ...data, styling: { ...styling, fitToOnePage: false } }); return; }
     onChange({
       ...data,
       styling: {
         ...data.styling,
+        fitToOnePage: true,
         fontSize: 'sm',
         lineSpacing: 'tight',
         sectionSpacing: 'compact',
@@ -316,7 +307,7 @@ export const ResumePreview: React.FC<ResumePreviewProps> = ({ data, onChange }) 
       <style>{`
         @media print {
           @page {
-            margin: ${getPageVerticalMarginMm(pagePadding)}mm 0;
+            margin: ${margins.vertical}mm 0;
           }
         }
 
@@ -335,6 +326,17 @@ export const ResumePreview: React.FC<ResumePreviewProps> = ({ data, onChange }) 
 
         .resume-paper-container * {
           box-sizing: border-box;
+        }
+
+        .resume-paper-container[data-single-page="true"] [class*="leading-"] {
+          line-height: ${getLineHeightValue()} !important;
+        }
+        .resume-paper-container[data-single-page="true"] .space-y-2\\.5 > * + * {
+          margin-top: 0.45rem !important;
+        }
+        .resume-paper-container[data-single-page="true"] .group-section > div:first-child {
+          margin-bottom: 0.35rem !important;
+          padding-bottom: 0.2rem !important;
         }
 
         /* ===== Critical: Chinese/English vertical alignment fix ===== */
@@ -558,14 +560,15 @@ export const ResumePreview: React.FC<ResumePreviewProps> = ({ data, onChange }) 
             <span>{pageCount === 1 ? '标准 1 页' : `共 ${pageCount} 页`}</span>
           </span>
 
-          {pageCount > 1 && onChange && (
+          {(pageCount > 1 || fitToOnePage) && onChange && (
             <button
               onClick={handleAutoFitSinglePage}
               className="px-2.5 py-0.5 rounded-full text-[10px] font-bold text-white bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 shadow-2xs hover:shadow-xs transition cursor-pointer flex items-center gap-1"
-              title="一键将字号、行距、边距调整为紧凑模式，尝试压缩为 1 页"
+              aria-pressed={fitToOnePage}
+              title={fitToOnePage ? (pageCount > 1 ? '内容较多，请精简后再适配单页；点击恢复正常分页' : `单页排版比例 ${Math.round(contentScale * 100)}%；点击恢复正常分页`) : '自动紧凑排版并适配 A4 单页，保留可复制文字'}
             >
               <LucideIcon name="Sparkles" size={10} />
-              <span>紧凑排版</span>
+              <span>{fitToOnePage ? (pageCount > 1 ? '内容过多，恢复分页' : '恢复分页') : '适配单页'}</span>
             </button>
           )}
         </div>
@@ -605,6 +608,8 @@ export const ResumePreview: React.FC<ResumePreviewProps> = ({ data, onChange }) 
               id="resume-print-area"
               ref={paperRef}
               data-font={fontFamily}
+              data-single-page={fitToOnePage ? 'true' : 'false'}
+              data-content-scale={contentScale}
               className={`resume-paper-container bg-white text-slate-800 transition-all duration-300 ${getSpacingClass()} ${fontFamily === 'mono' ? 'is-font-mono' : ''}`}
               style={{
                 fontFamily: getFontFamilyStyle(),
@@ -636,7 +641,7 @@ export const ResumePreview: React.FC<ResumePreviewProps> = ({ data, onChange }) 
                   </div>
               ))}
 
-              <div ref={contentRef} className="relative z-10">
+              <div ref={contentRef} className="resume-content relative z-10" style={{ width: `${210 - margins.horizontal * 2}mm`, zoom: contentScale, margin: '0 auto' }}>
                 {renderSelectedTemplate()}
               </div>
             </div>

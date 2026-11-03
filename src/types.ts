@@ -23,6 +23,7 @@ export interface ResumeStyling {
   avatarSize: number; // in pixels (e.g. 80 to 140)
   sectionSpacing: 'compact' | 'normal' | 'comfortable';
   pagePadding?: 'compact' | 'normal' | 'comfortable';
+  fitToOnePage?: boolean; // Shared single-page layout for preview and text PDF
   showAvatar: boolean;
   sectionOrder?: string[]; // Order of sections, e.g. ['skills', 'education', 'projects', ...]
 }

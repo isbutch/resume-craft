@@ -20,6 +20,10 @@ Resume data stays in the current browser's `localStorage`; CraftCV does not prov
 
 The bundled resume is an anonymized example for layout reference. Older built-in demo caches are migrated to the current anonymous example on load.
 
+## Single-page text PDF
+
+Use **适配单页** in the preview toolbar to compact and fit the actual content to A4. Preview and regular PDF printing share the same layout and preserve selectable text. Preview zoom and fit-width affect only the screen view. The setting persists in drafts and JSON backups; use **恢复分页** to disable it. Content requiring less than 85% scale keeps multiple pages instead of being clipped or becoming unreadable. Print on A4 at 100% scale with headers and footers disabled.
+
 ## Recruitment-site compatible PDF
 
 Use the regular **Export PDF** first to keep selectable, searchable text. If a recruitment site such as Beisen rejects the file as containing illegal code, try **More → 导出兼容 PDF（图片版）**.

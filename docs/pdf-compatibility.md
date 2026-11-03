@@ -14,3 +14,11 @@ The standard export keeps selectable text. The fallback uses image-only pages, s
 No live Beisen upload was performed as part of this local check. The rejection rule is unknown, and acceptance is not guaranteed. Original browser PDFs checked locally did not contain JavaScript, automatic actions, embedded files, or forms; `/AAAAAA+...` was a subset font name, not an `/AA` action dictionary. Do not infer malicious code from the upload message alone.
 
 Personal resume data and generated PDFs/previews are not committed to this tool repository.
+
+## Single-page text PDF follow-up
+
+The former compact button only set four presets; it did not measure and fit overflowing content. The local batch exporter also injected additional spacing and scaling rules absent from the website.
+
+The new single-page control shares actual content measurement and A4 margins between preview and the ordinary text print snapshot. Local Chrome verification used three resume variants: all displayed one page, retained the setting after reload, and printed one-page PDFs with embedded fonts and extractable text. Content scales were approximately 94%, 94%, and 98%; no resume text was edited. The lower scale bound is 85%; excessively long resumes continue to paginate. Screen zoom remains independent of document layout.
+
+Printing was checked with A4, CSS page size, 100% scale, and browser headers/footers disabled. Live deployment and Beisen acceptance remain separate checks.
