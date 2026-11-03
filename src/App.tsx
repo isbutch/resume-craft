@@ -226,6 +226,25 @@ export default function App() {
     }
   };
 
+  const handleExportCompatibilityPDF = async () => {
+    if (exportBusyRef.current) return;
+    const source = document.getElementById('resume-print-area');
+    if (!source) return;
+    printCleanupRef.current?.();
+    exportBusyRef.current = true;
+    setIsExporting(true);
+    try {
+      const { exportCompatibilityPdf } = await import('./utils/compatibilityPdf');
+      await exportCompatibilityPdf(source, data.title || data.personalInfo.name || '我的简历');
+      setNotice('兼容 PDF 已导出（图片版，不支持文字复制；招聘系统可能需要 OCR 识别）。');
+    } catch (error) {
+      window.alert(`无法导出兼容 PDF：${error instanceof Error ? error.message : '请稍后重试。'}`);
+    } finally {
+      exportBusyRef.current = false;
+      setIsExporting(false);
+    }
+  };
+
   const statusText = saveStatus === 'error' ? '保存失败，请导出备份' : saveStatus === 'saving' ? '正在保存…' : hasDraft ? '已保存到此浏览器' : '示例内容 · 编辑后自动保存';
   return <>
     {route === 'home' ? <HomePage data={data} hasDraft={hasDraft} onEnter={enter} onCreate={handleClearAll} onTemplate={selectTemplate} /> :
@@ -237,6 +256,7 @@ export default function App() {
             <details ref={menuRef} className="workspace-menu">
               <summary aria-label="更多操作"><LucideIcon name="Ellipsis" size={20} /><span>更多</span></summary>
               <div className="workspace-menu-panel" onClick={() => { if (menuRef.current) menuRef.current.open = false; }}>
+                <button disabled={isExporting} onClick={handleExportCompatibilityPDF} title="用于招聘网站拒收普通 PDF 时重试。图片版不支持文字复制，自动解析依赖 OCR。"><LucideIcon name="Download" size={16} />导出兼容 PDF（图片版）</button>
                 <button onClick={handleExportJSON}><LucideIcon name="Download" size={16} />导出 JSON 备份</button>
                 <button disabled={isImporting} onClick={() => fileInputRef.current?.click()}><LucideIcon name="Upload" size={16} />{isImporting ? '读取中…' : '导入 JSON 备份'}</button>
                 <hr />

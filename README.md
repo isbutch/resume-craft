@@ -20,6 +20,14 @@ Resume data stays in the current browser's `localStorage`; CraftCV does not prov
 
 The bundled resume is an anonymized example for layout reference. Older built-in demo caches are migrated to the current anonymous example on load.
 
+## Recruitment-site compatible PDF
+
+Use the regular **Export PDF** first to keep selectable, searchable text. If a recruitment site such as Beisen rejects the file as containing illegal code, try **More → 导出兼容 PDF（图片版）**.
+
+The compatibility export renders the resume locally into images and creates a simple A4 PDF without embedded fonts, hyperlinks, forms, scripts, or a browser tag tree. Long resumes paginate near blank rows to avoid splitting text. No resume is uploaded to a server.
+
+**Image-only PDFs have no selectable or searchable text; automated resume parsing requires OCR.** Keep the normal PDF and JSON backup. Acceptance must still be checked on the target website; a rejection alone does not establish that a PDF contains malicious code.
+
 ## Run locally
 
 ```bash
